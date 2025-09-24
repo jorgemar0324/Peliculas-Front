@@ -11,7 +11,6 @@ export const GeneroEdit = ({ generoId, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
-  // Cargar datos del género a editar
   useEffect(() => {
     const loadGeneroData = async () => {
       try {

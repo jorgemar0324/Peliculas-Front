@@ -21,7 +21,7 @@ const updateMedia = async (id, media) => {
 }
 
 const deleteMedia = async (id) => {
-    const response = await axiosConfig.delete(`/medias/${id}`);
+    const response = await axiosConfig.delete(`/media/${id}`);
     return response.data;
 }   
 

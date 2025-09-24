@@ -9,8 +9,7 @@ export const GeneroView = () => {
   const [openModal, setOpenModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [generoToEdit, setGeneroToEdit] = useState(null);
-  const [error, setError] = useState(null);
-  const [generoAEliminar, setGeneroAEliminar] = useState(null);
+  const [error, setError] = useState(null);  
   const [eliminando, setEliminando] = useState(false);
 
   const listarGeneros = async () => {

@@ -1,26 +1,13 @@
 import React, { useState } from 'react';
-import { Link, useHistory } from 'react-router-dom';
 import { createDirector } from '../../services/directorService';
+import '../../styles.css'; // Importar estilos
 
-export const DirectorNew = () => {
+export const DirectorNew = ({ onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
-    nombre: '',
+    nombre: '',    
     estado: 'activo'
   });
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-  const navigate = useHistory();
-
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.nombre.trim()) {
-      newErrors.nombre = 'El nombre es requerido';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,111 +15,93 @@ export const DirectorNew = () => {
       ...prev,
       [name]: value
     }));
-    
-    // Limpiar error del campo cuando se modifica
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!validateForm()) return;
+    // Validación básica
+    if (!formData.nombre.trim()) {
+      alert('El nombre es requerido');
+      return;
+    }
     
     setLoading(true);
     
     try {
       await createDirector(formData);
       alert('Director creado exitosamente');
-      navigate('/directores'); // Redirigir a la lista después de crear
+      onSuccess(); // Recargar la lista
+      onClose(); // Cerrar el modal
     } catch (error) {
-      console.error('Error:', error);
-      
-      // Manejar error de duplicado
-      if (error.response?.status === 500 && 
-          error.response?.data?.error?.includes('duplicate key')) {
-        alert(`Error: Ya existe un director con el nombre "${formData.nombre}".`);
-      } else {
-        alert('Error al crear director. Verifica la consola para más detalles.');
-      }
+      console.error('Error al crear el director:', error);
+      alert('Error al crear director. Verifica la consola para más detalles.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="container mt-4">
-      <div className="row justify-content-center">
-        <div className="col-md-6">
-          
-          {/* Encabezado */}
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h2>👨‍💼 Nuevo Director</h2>
-            <Link to="/directores" className="btn btn-outline-secondary">
-              ← Volver
-            </Link>
-          </div>
-          
-          {/* Formulario */}
-          <div className="card">
-            <div className="card-body">
-              <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                  <label htmlFor="nombre" className="form-label">Nombre del Director</label>
-                  <input
-                    type="text"
-                    className={`form-control ${errors.nombre ? 'is-invalid' : ''}`}
-                    id="nombre"
-                    name="nombre"
-                    value={formData.nombre}
-                    onChange={handleChange}
-                    disabled={loading}
-                    placeholder="Ingrese el nombre del director"
-                  />
-                  {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
-                </div>
-                
-                <div className="mb-3">
-                  <label htmlFor="estado" className="form-label">Estado</label>
-                  <select
-                    className="form-select"
-                    id="estado"
-                    name="estado"
-                    value={formData.estado}
-                    onChange={handleChange}
-                    disabled={loading}
-                  >
-                    <option value="activo">Activo</option>
-                    <option value="inactivo">Inactivo</option>
-                  </select>
-                </div>
-                
-                <div className="d-flex justify-content-end gap-2">
-                  <Link to="/directores" className="btn btn-secondary">
-                    Cancelar
-                  </Link>
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        Creando...
-                      </>
-                    ) : (
-                      'Crear Director'
-                    )}
-                  </button>
-                </div>
-              </form>
+    <div className="modal-backdrop">
+      <div className="modal-content-custom">
+        <div className="modal-header-custom">
+          <h5 className="modal-title-custom">🎬 Nuevo Director</h5>
+          <button 
+            type="button" 
+            className="btn-close" 
+            onClick={onClose}
+            disabled={loading}
+          ></button>
+        </div>
+        <div className="modal-body-custom">
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label htmlFor="nombre" className="modal-form-label">Nombre del Director</label>
+              <input
+                type="text"
+                className="form-control modal-form-control"
+                id="nombre"
+                name="nombre"
+                value={formData.nombre}
+                onChange={handleChange}
+                disabled={loading}                
+              />
             </div>
-          </div>
+            
+            <div className="mb-3">
+              <label htmlFor="estado" className="modal-form-label">Estado</label>
+              <select
+                className="form-select modal-form-control"
+                id="estado"
+                name="estado"
+                value={formData.estado}
+                onChange={handleChange}
+                disabled={loading}
+              >
+                <option value="activo">Activo</option>
+                <option value="inactivo">Inactivo</option>
+              </select>
+            </div>
+            
+            <div className="modal-buttons-container">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={onClose}
+                disabled={loading}
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={loading}
+              >
+                {loading && <span className="loading-spinner"></span>}
+                {loading ? 'Creando...' : 'Crear Director'}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
