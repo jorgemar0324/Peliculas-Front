@@ -24,7 +24,7 @@ export const MediaView = () => {
       }
       
       setMedias(mediaData);
-      setFilteredMedias(mediaData); 
+      setFilteredMedias(mediaData);
     } catch (error) {
       console.log("Error al listar medias: ", error);
       setMedias([]);
@@ -34,44 +34,28 @@ export const MediaView = () => {
     }
   };
 
-  // Función para filtrar las medias
   const filterMedias = (term) => {
     if (!term.trim()) {
-      setFilteredMedias(medias); 
+      setFilteredMedias(medias);
       return;
     }
 
     const lowercasedTerm = term.toLowerCase();
     
     const filtered = medias.filter(media => {
-      // Buscar en título
       if (media.titulo?.toLowerCase().includes(lowercasedTerm)) return true;
-      
-      // Buscar en serial
       if (media.serial?.toLowerCase().includes(lowercasedTerm)) return true;
-      
-      // Buscar en género
       if (media.genero?.nombre?.toLowerCase().includes(lowercasedTerm)) return true;
-      
-      // Buscar en director
       if (media.director?.nombre?.toLowerCase().includes(lowercasedTerm)) return true;
-      
-      // Buscar en tipo
       if (media.tipo?.nombre?.toLowerCase().includes(lowercasedTerm)) return true;
-      
-      // Buscar en año 
       if (media.año?.toString().includes(lowercasedTerm)) return true;
-      
-      // Buscar en sinopsis
       if (media.sinopsis?.toLowerCase().includes(lowercasedTerm)) return true;
-      
       return false;
     });
     
     setFilteredMedias(filtered);
   };
 
-  /
   useEffect(() => {
     filterMedias(searchTerm);
   }, [searchTerm, medias]);
@@ -93,7 +77,7 @@ export const MediaView = () => {
   };
 
   const handleSuccess = () => {
-    listarMedias(); 
+    listarMedias();
   };
 
   useEffect(() => {
@@ -102,7 +86,6 @@ export const MediaView = () => {
 
   return (
     <div className='container mt-4'>
-      
       {openModal && (
         <MediaNew 
           onClose={handleCloseModal}
@@ -122,7 +105,6 @@ export const MediaView = () => {
         </button>
       </div>
 
-      {/* Barra de búsqueda */}
       <div className="row mb-4">
         <div className="col-12">
           <div className="card">
@@ -180,7 +162,6 @@ export const MediaView = () => {
             </div>
           ) : (
             <>
-              
               {searchTerm && (
                 <div className="mb-3">
                   <p className="text-muted">
