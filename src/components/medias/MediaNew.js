@@ -25,7 +25,7 @@ export const MediaNew = ({ onClose, onSuccess }) => {
     tipo: ''
   });
 
-  // Cargar datos de los modelos relacionados
+  s
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -63,7 +63,7 @@ export const MediaNew = ({ onClose, onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validación básica
+    //validacion campos
     if (!formData.serial || !formData.titulo || !formData.sinopsis || !formData.url || 
         !formData.año || !formData.genero || !formData.director || !formData.productora || !formData.tipo) {
       alert('Por favor, complete todos los campos obligatorios');

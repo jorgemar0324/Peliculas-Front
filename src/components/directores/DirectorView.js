@@ -35,7 +35,7 @@ export const DirectorView = () => {
         setEliminando(true);
         await deleteDirector(director._id);
         alert('Director eliminado exitosamente');
-        listarDirectores(); // Recargar la lista
+        listarDirectores(); 
       } catch (error) {
         console.error('Error al eliminar director:', error);
         alert('Error al eliminar director. Verifica la consola para más detalles.');
@@ -66,7 +66,7 @@ export const DirectorView = () => {
 
   return (
     <div className="container mt-4">      
-      {/* Modal para NUEVO director - usando DirectorNew */}
+      
       {openModal && (
         <DirectorNew 
           onClose={handleCloseModal} 
@@ -74,7 +74,7 @@ export const DirectorView = () => {
         />
       )}
       
-      {/* Modal para EDITAR director - usando DirectorEdit */}
+      
       {editModal && directorToEdit && (
         <DirectorEdit 
           directorId={directorToEdit._id}

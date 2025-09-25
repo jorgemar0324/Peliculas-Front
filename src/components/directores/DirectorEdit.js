@@ -45,7 +45,7 @@ export const DirectorEdit = ({ directorId, onClose, onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validación básica
+    // Validación
     if (!formData.nombre.trim()) {
       alert('El nombre es requerido');
       return;
@@ -56,8 +56,8 @@ export const DirectorEdit = ({ directorId, onClose, onSuccess }) => {
     try {
       await updateDirector(directorId, formData);
       alert('Director actualizado exitosamente');
-      onSuccess(); // Recargar la lista
-      onClose(); // Cerrar el modal
+      onSuccess(); 
+      onClose(); 
     } catch (error) {
       console.error('Error al actualizar director:', error);
       alert('Error al actualizar director. Verifica la consola para más detalles.');
