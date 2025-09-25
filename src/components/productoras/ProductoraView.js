@@ -1,54 +1,70 @@
-import React ,{useState, useEffect, use} from 'react';
+import React ,{useState, useEffect} from 'react';
 import {getProductors} from '../../services/productorService';
 import {ProductoraNew} from './ProductoraNew';
+import { ProductoraEdit } from './ProductoraEdit';
 
 export const ProductoraView = () => {
   const [productoras, setProductoras] = useState([]);
   const [openModal, setOpenModal] = useState(false);
+  const [editModal, setEditModal] = useState(false);
+  const [productoraToEdit, setProductoraToEdit] = useState(null); // Cambiado a mayúscula
+  const [error, setError] = useState(null);  
+  const [eliminando, setEliminando] = useState(false);
 
   const listarProductoras = async () => {
     try {
-      const data = await getProductors();
-      console.log(data);
+      const data = await getProductors();      
       setProductoras(data);
+      setError(null);
     } catch (error) {
       console.log("Error al listar productoras: ", error);
+      setError("Error al cargar las productoras.");
       }
   };
   
-    // Función para manejar edición (sin implementar)
-  const handleEditar = (productora) => {
-    console.log("Editar productora:", productora);
-    alert(`Función de editar no implementada para: ${productora.nombre}`);
+  const handleEditar = (productor) => {
+    setProductoraToEdit(productor); // Cambiado a mayúscula
+    setEditModal(true);
   };
 
   // Función para manejar eliminación (sin implementar)
-  const handleEliminar = (productora) => {
-    console.log("Eliminar productora:", productora);
-    alert(`Función de eliminar no implementada para: ${productora.nombre}`);
+  const handleEliminar = (productor) => {
+    console.log("Eliminar productora:", productor);
+    alert(`Función de eliminar no implementada para: ${productor.nombre}`);
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
-  };
-
-    const handleSuccess = () => {
-    listarProductoras();
-  };
-
-  // Función para crear nuevo productora (sin implementar)
   const handleNuevaProductora = () => {
     setOpenModal(true);
   };
 
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setEditModal(false);
+    setProductoraToEdit(null); // Cambiado a mayúscula
+  };
+
+  const handleSuccess = () => {
+    listarProductoras();
+    handleCloseModal();
+  };
+
   useEffect(() => {
     listarProductoras();
-  }, []);
+  }, []); 
 
   return (
     <div className="container mt-4">
       {openModal && (
               <ProductoraNew 
+                onClose={handleCloseModal} 
+                onSuccess={handleSuccess}
+              />
+            )}
+
+      {/* Modal para editar productora */}
+            {editModal && productoraToEdit && (
+              <ProductoraEdit 
+                productoraId={productoraToEdit._id}
                 onClose={handleCloseModal} 
                 onSuccess={handleSuccess}
               />
@@ -87,24 +103,24 @@ export const ProductoraView = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {productoras.map((productora, index) => (
-                    <tr key={productora._id}>
+                  {productoras.map((productor, index) => (
+                    <tr key={productor._id}>
                       <th scope="row">{index + 1}</th>
-                      <td>{productora.nombre}</td>
-                      <td>{productora.descripcion}</td>
-                      <td>{productora.slogan}</td>
+                      <td>{productor.nombre}</td>
+                      <td>{productor.descripcion}</td>
+                      <td>{productor.slogan}</td>
                       <td>
-                        <span className={`badge bg-${productora.estado === 'activo' ? 'success' : 'warning'}`}>
-                          {productora.estado}
+                        <span className={`badge bg-${productor.estado === 'activo' ? 'success' : 'warning'}`}>
+                          {productor.estado}
                         </span>
                       </td>
                       <td>
-                        {new Date(productora.fechaCreacion).toLocaleDateString()}
+                        {new Date(productor.fechaCreacion).toLocaleDateString()}
                       </td>
                       <td className="text-center">
                         <button 
                           className="btn btn-sm btn-primary me-2"
-                          onClick={() => handleEditar(productora)}
+                          onClick={() => handleEditar(productor)}
                           style={{ cursor: 'pointer' }}
                           title="Editar Productora"
                         >
@@ -113,7 +129,7 @@ export const ProductoraView = () => {
                         </button>
                         <button 
                           className="btn btn-sm btn-danger"
-                          onClick={() => handleEliminar(productora)}
+                          onClick={() => handleEliminar(productor)}
                           style={{ cursor: 'pointer' }}
                           title="Eliminar Productora"
                         >
