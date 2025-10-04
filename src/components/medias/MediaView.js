@@ -18,7 +18,7 @@ export const MediaView = () => {
       
       let mediaData = [];
       if (response.data && Array.isArray(response.data)) {
-        mediaData = response.data; 
+      mediaData = response.data; 
       } else if (Array.isArray(response)) {
         mediaData = response; 
       }

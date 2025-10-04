@@ -32,12 +32,26 @@ export const GeneroView = () => {
     if (window.confirm(`¿Estás seguro de eliminar el género "${genero.nombre}"?`)) {
       try {
         setEliminando(true);
-        await deleteGenero(genero._id);
-        alert('Género eliminado exitosamente');
-        listarGeneros(); // Recargar la lista
+        await deleteTipo(tipo._id);
+        
+        const response = await deleteGenero(genero._id);
+        
+        if (response.success) {
+          alert('Género eliminado exitosamente');
+          listarGeneros();
+        } else {
+          alert(response.message || 'No se pudo eliminar el Género');
+        }
+
       } catch (error) {
-        console.error('Error al eliminar género:', error);
-        alert('Error al eliminar género. Verifica la consola para más detalles.');
+        console.error('Error al eliminar el Genero:', error);
+
+        if (error.response && error.response.data) {
+          const errorData = error.response.data;
+          alert(errorData.message || 'Error al eliminar el Genero');
+        } else {
+          alert('Error al eliminar el Genero. Verifica la consola para más detalles.');
+        }
       } finally {
         setEliminando(false);
       }

@@ -1,50 +1,113 @@
-import React ,{useState, useEffect, use} from 'react';
-import {getTipos} from '../../services/tipoService';
-
+import React, { useState, useEffect, use } from 'react';
+import { getTipos, deleteTipo } from '../../services/tipoService';
+import { TipoNew } from './TipoNew';
+import { TipoEdit } from './TipoEdit';
+import '../../styles.css';
 
 export const TipoView = () => {
   const [tipos, setTipos] = useState([]);
+  const [openModal, setOpenModal] = useState(false);
+  const [editModal, setEditModal] = useState(false);
+  const [tipoToEdit, setTipoToEdit] = useState(null);
+  const [error, setError] = useState(null);
+  const [eliminando, setEliminando] = useState(false);
+
+
   const listarTipos = async () => {
     try {
-      const data = await getTipos();  
-      console.log(data);
+      const data = await getTipos();
       setTipos(data);
+      setError(null);
     } catch (error) {
       console.log("Error al listar tipos: ", error);
-      } 
+      setError("Error al cargar los tipos de media.");
+    }
   };
 
-   // Función para manejar edición (sin implementar)
+
+
   const handleEditar = (tipo) => {
-    console.log("Editar tipo:", tipo);
-    alert(`Función de editar no implementada para: ${tipo.nombre}`);
+    setTipoToEdit(tipo);
+    setEditModal(true);
   };
 
-  // Función para manejar eliminación (sin implementar)
-  const handleEliminar = (tipo) => {
-    console.log("Eliminar tipo:", tipo);
-    alert(`Función de eliminar no implementada para: ${tipo.nombre}`);
+
+  const handleEliminar = async (tipo) => {
+    if (window.confirm(`¿Estás seguro de eliminar el tipo "${tipo.nombre}"?`)) {
+      try {
+        setEliminando(true);
+
+        const response = await deleteTipo(tipo._id);
+
+        // Verificar si la respuesta indica éxito
+        if (response.success) {
+          alert('Tipo eliminado exitosamente');
+          listarTipos();
+        } else {
+          alert(response.message || 'No se pudo eliminar el tipo');
+        }
+
+      } catch (error) {
+        console.error('Error al eliminar el tipo:', error);
+
+        if (error.response && error.response.data) {
+          const errorData = error.response.data;
+          alert(errorData.message || 'Error al eliminar el tipo');
+        } else {
+          alert('Error al eliminar el tipo. Verifica la consola para más detalles.');
+        }
+      } finally {
+        setEliminando(false);
+      }
+    }
   };
 
-  // Función para crear nuevo tipo (sin implementar)
+
   const handleNuevoTipo = () => {
-    console.log("Crear nuevo tipo");
-    alert("Función de crear nuevo tipo no implementada");
+    setOpenModal(true);
+  };
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setEditModal(false);
+    setTipoToEdit(null);
+  };
+
+  const handleSuccess = () => {
+    listarTipos();
+    handleCloseModal();
   };
 
   useEffect(() => {
     listarTipos();
-  }, []); 
-  
+  }, []);
+
+
   return (
     <div className="container mt-4">
+
+      {openModal && (
+        <TipoNew
+          onClose={handleCloseModal}
+          onSuccess={handleSuccess}
+        />
+      )}
+
+
+      {editModal && tipoToEdit && (
+        <TipoEdit
+          tipoId={tipoToEdit._id}
+          onClose={handleCloseModal}
+          onSuccess={handleSuccess}
+        />
+      )}
+
       <div className="row">
         <div className="col-12">
-          
+
           {/* Encabezado con título y botón */}
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h2 className="text-black mb-0">🎬 Tipos Media</h2>
-            <button 
+            <button
               className="btn btn-success"
               onClick={handleNuevoTipo}
               style={{ cursor: 'pointer' }}
@@ -53,7 +116,7 @@ export const TipoView = () => {
               Nuevo Tipo
             </button>
           </div>
-          
+
           {tipos.length === 0 ? (
             <div className="alert alert-info">
               No hay Tipos de Media registrados
@@ -80,7 +143,7 @@ export const TipoView = () => {
                         {new Date(tipo.fechaCreacion).toLocaleDateString()}
                       </td>
                       <td className="text-center">
-                        <button 
+                        <button
                           className="btn btn-sm btn-primary me-2"
                           onClick={() => handleEditar(tipo)}
                           style={{ cursor: 'pointer' }}
@@ -89,14 +152,24 @@ export const TipoView = () => {
                           <i className="fas fa-edit me-1"></i>
                           Editar
                         </button>
-                        <button 
+                        <button
                           className="btn btn-sm btn-danger"
                           onClick={() => handleEliminar(tipo)}
                           style={{ cursor: 'pointer' }}
                           title="Eliminar tipo"
+                          disabled={eliminando}
                         >
-                          <i className="fas fa-trash me-1"></i>
-                          Eliminar
+                          {eliminando ? (
+                            <>
+                              <span className="spinner-border spinner-border-sm me-1" role="status"></span>
+                              Eliminando...
+                            </>
+                          ) : (
+                            <>
+                              <i className="fas fa-trash me-1"></i>
+                              Eliminar
+                            </>
+                          )}
                         </button>
                       </td>
                     </tr>
@@ -109,4 +182,6 @@ export const TipoView = () => {
       </div>
     </div>
   );
-}
+};
+
+

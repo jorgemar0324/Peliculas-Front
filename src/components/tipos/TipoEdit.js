@@ -1,14 +1,38 @@
-import React, { useState } from 'react';
-import { createGenero } from '../../services/generoService';
-import '../../styles.css'; // Importar estilos
+import React, { useState, useEffect } from 'react';
+import { updateTipo, getTipoById } from '../../services/tipoService';
+import '../../styles.css'; 
 
-export const GeneroNew = ({ onClose, onSuccess }) => {
+export const TipoEdit = ({ tipoId, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
     nombre: '',
-    descripcion: '',
-    estado: 'activo'
+    descripcion: ''    
   });
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  useEffect(() => {
+    const loadTipoData = async () => {
+      try {
+        setInitialLoading(true);
+        const tipo = await getTipoById(tipoId);
+        setFormData({
+          nombre: tipo.nombre || '',
+          descripcion: tipo.descripcion || ''
+         
+        });
+      } catch (error) {
+        console.error('Error al cargar el tipo:', error);
+        alert('Error al cargar los datos del tipo');
+        onClose();
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    if (tipoId) {
+      loadTipoData();
+    }
+  }, [tipoId, onClose]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,36 +44,51 @@ export const GeneroNew = ({ onClose, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     // Validación básica
     if (!formData.nombre.trim()) {
       alert('El nombre es requerido');
       return;
     }
-
+    
     setLoading(true);
-
+    
     try {
-      await createGenero(formData);
-      alert('Género creado exitosamente');
+      await updateTipo(tipoId, formData);
+      alert('Tipo actualizado exitosamente');
       onSuccess(); // Recargar la lista
       onClose(); // Cerrar el modal
     } catch (error) {
-      console.error('Error al crear género:', error);
-      alert('Error al crear género. Verifica la consola para más detalles.');
+      console.error('Error al actualizar el tipo:', error);
+      alert('Error al actualizar el tipo. Verifica la consola para más detalles.');
     } finally {
       setLoading(false);
     }
   };
 
+  if (initialLoading) {
+    return (
+      <div className="modal-backdrop">
+        <div className="modal-content-custom">
+          <div className="modal-body-custom text-center">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Cargando...</span>
+            </div>
+            <p className="mt-2">Cargando datos del tipo...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="modal-backdrop">
       <div className="modal-content-custom">
         <div className="modal-header-custom">
-          <h5 className="modal-title-custom">🎬 Nuevo Género</h5>
-          <button
-            type="button"
-            className="btn-close"
+          <h5 className="modal-title-custom">✏️ Editar tipo</h5>
+          <button 
+            type="button" 
+            className="btn-close" 
             onClick={onClose}
             disabled={loading}
           ></button>
@@ -57,7 +96,7 @@ export const GeneroNew = ({ onClose, onSuccess }) => {
         <div className="modal-body-custom">
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
-              <label htmlFor="nombre" className="modal-form-label">Nombre del Género</label>
+              <label htmlFor="nombre" className="modal-form-label">Tipo de Media</label>
               <input
                 type="text"
                 className="form-control modal-form-control"
@@ -65,40 +104,24 @@ export const GeneroNew = ({ onClose, onSuccess }) => {
                 name="nombre"
                 value={formData.nombre}
                 onChange={handleChange}
-                disabled={loading}
-                placeholder="Ej: Acción, Comedia, Drama"
+                disabled={loading}                
               />
             </div>
-
+            
             <div className="mb-3">
               <label htmlFor="descripcion" className="modal-form-label">Descripción</label>
-              <input
+              <textarea
                 className="form-control modal-form-control"
                 id="descripcion"
                 name="descripcion"
                 value={formData.descripcion}
                 onChange={handleChange}
-                disabled={loading}
-                placeholder="Descripción opcional del género"
+                disabled={loading}                
                 rows="3"
               />
             </div>
-
-            <div className="mb-3">
-              <label htmlFor="estado" className="modal-form-label">Estado</label>
-              <select
-                className="form-select modal-form-control"
-                id="estado"
-                name="estado"
-                value={formData.estado}
-                onChange={handleChange}
-                disabled={loading}
-              >
-                <option value="activo">Activo</option>
-                <option value="inactivo">Inactivo</option>
-              </select>
-            </div>
-
+            
+            
             <div className="modal-buttons-container">
               <button
                 type="button"
@@ -114,7 +137,7 @@ export const GeneroNew = ({ onClose, onSuccess }) => {
                 disabled={loading}
               >
                 {loading && <span className="loading-spinner"></span>}
-                {loading ? 'Creando...' : 'Crear Género'}
+                {loading ? 'Actualizando...' : 'Actualizar Tipo'}
               </button>
             </div>
           </form>

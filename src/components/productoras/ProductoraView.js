@@ -1,5 +1,5 @@
 import React ,{useState, useEffect} from 'react';
-import {getProductors} from '../../services/productorService';
+import {getProductors, deleteProductor} from '../../services/productorService';
 import {ProductoraNew} from './ProductoraNew';
 import { ProductoraEdit } from './ProductoraEdit';
 
@@ -27,10 +27,20 @@ export const ProductoraView = () => {
     setEditModal(true);
   };
 
-  // Función para manejar eliminación (sin implementar)
-  const handleEliminar = (productor) => {
-    console.log("Eliminar productora:", productor);
-    alert(`Función de eliminar no implementada para: ${productor.nombre}`);
+   const handleEliminar = async (productor) => {
+    if (window.confirm(`¿Estás seguro de eliminar la productora "${productor.nombre}"?`)) {
+      try {
+        setEliminando(true);
+        await deleteProductor(productor._id);
+        alert('Productor eliminado exitosamente');
+        listarProductoras(); 
+      } catch (error) {
+        console.error('Error al eliminar la productora:', error);
+        alert('Error al eliminar la productora. Verifica la consola para más detalles.');
+      } finally {
+        setEliminando(false);
+      }
+    }
   };
 
   const handleNuevaProductora = () => {
@@ -60,8 +70,7 @@ export const ProductoraView = () => {
                 onSuccess={handleSuccess}
               />
             )}
-
-      {/* Modal para editar productora */}
+      
             {editModal && productoraToEdit && (
               <ProductoraEdit 
                 productoraId={productoraToEdit._id}
@@ -127,14 +136,24 @@ export const ProductoraView = () => {
                           <i className="fas fa-edit me-1"></i>
                           Editar
                         </button>
-                        <button 
+                                                <button 
                           className="btn btn-sm btn-danger"
                           onClick={() => handleEliminar(productor)}
                           style={{ cursor: 'pointer' }}
-                          title="Eliminar Productora"
+                          title="Eliminar tipo"
+                          disabled={eliminando}
                         >
-                          <i className="fas fa-trash me-1"></i>
-                          Eliminar
+                          {eliminando ? (
+                            <>
+                              <span className="spinner-border spinner-border-sm me-1" role="status"></span>
+                              Eliminando...
+                            </>
+                          ) : (
+                            <>
+                              <i className="fas fa-trash me-1"></i>
+                              Eliminar
+                            </>
+                          )}
                         </button>
                       </td>
                     </tr>
